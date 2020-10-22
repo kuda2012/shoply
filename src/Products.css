@@ -1,0 +1,8 @@
+.Products {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 60%;
+  justify-content: space-around;
+  border: 1px solid gold;
+}
