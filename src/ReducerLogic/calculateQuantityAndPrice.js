@@ -7,7 +7,7 @@ function calculateQuantityAndPrice(cart) {
       totalPrice = cart[key][key2].price + totalPrice;
     }
   }
-  totalPrice.toFixed(2);
+  totalPrice = totalPrice.toFixed(2);
   return [totalQuantity, totalPrice];
 }
 
