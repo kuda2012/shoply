@@ -1,5 +1,6 @@
 import rootReducer from "./reducers/rootReducer";
 import { ADD_CART, REMOVE_CART } from "./actionTypes";
+import { addToCart, removeFromCart } from "./actions";
 
 describe("test reducer", () => {
   it("should add an item and remove it", () => {
@@ -12,17 +13,12 @@ describe("test reducer", () => {
       name: "tv",
       price: 219.99,
     };
-    const { cart } = rootReducer(
-      { cart: [] },
-      { type: ADD_CART, payload: item }
-    );
-    expect(cart.length).toEqual(1);
-    expect(cart[0]).toEqual(item);
-    let response = rootReducer(
-      { cart: [] },
-      { type: REMOVE_CART, payload: item.id }
-    );
-    expect(response.cart.length).toEqual(0);
+    const { cart } = rootReducer({ cart: {} }, addToCart(item));
+    expect(cart[item.id].length).toEqual(1);
+    expect(cart[item.id][0]).toEqual(item);
+    //chain cart into rootReducer so it can be removed
+    let response = rootReducer({ cart: cart }, removeFromCart(item.id));
+    expect(response.cart).toEqual({});
   });
   it("should add the same item twice and then with one click only remove one of them even though they share the same ID", () => {
     const item = {
@@ -35,22 +31,22 @@ describe("test reducer", () => {
       price: 219.99,
     };
     const { cart } = rootReducer(
-      { cart: [] },
+      { cart: {} },
       { type: ADD_CART, payload: item }
     );
-    expect(cart.length).toEqual(1);
-    expect(cart[0]).toEqual(item);
+    expect(cart[item.id].length).toEqual(1);
+    expect(cart[item.id][0]).toEqual(item);
     //chaining cart into doubleUp
     const doubleUp = rootReducer(
       { cart: cart },
       { type: ADD_CART, payload: item }
     ).cart;
-    expect(doubleUp.length).toEqual(2);
-    expect(doubleUp[1]).toEqual(item);
+    expect(doubleUp[item.id].length).toEqual(2);
+    expect(doubleUp[item.id][0]).toEqual(doubleUp[item.id][1]);
     let response = rootReducer(
       { cart: doubleUp },
       { type: REMOVE_CART, payload: item.id }
     );
-    expect(response.cart.length).toEqual(1);
+    expect(response.cart[item.id].length).toEqual(1);
   });
 });

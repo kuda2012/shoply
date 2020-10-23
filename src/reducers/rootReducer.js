@@ -3,74 +3,50 @@ const INITIAL_STATE = { cart: {} };
 function rootReducer(state = INITIAL_STATE, action) {
   switch (action.type) {
     case "ADD_CART":
-      let holder = [];
-      holder.push(action.payload);
+      let productBeingChanged = [];
+      productBeingChanged.push(action.payload);
       if (state.cart[action.payload.id]) {
-        holder.push(...state.cart[action.payload.id]);
+        productBeingChanged.push(...state.cart[action.payload.id]);
       }
-      // console.log({ ...state.cart });
-      // console.log({
-      //   ...state.cart,
-      //   cart: {
-      //     [action.payload.id]: holder,
-      //   },
-      // });
-      // return {
-      //   ...state,
-      //   cart: {
-      //     [action.payload.id]: holder,
-      //   },
-      // };
-      let answer;
+      let updatedCart = {};
       if (Object.keys(state.cart).length > 0) {
         for (let key in state.cart) {
-          if (key != action.payload.id) {
-            answer = {
-              cart: {
-                ...state.card,
-                [action.payload.id]: holder,
-              },
+          if (key === action.payload.id) {
+            updatedCart.cart = {
+              [action.payload.id]: productBeingChanged,
             };
-            console.log({
-              [action.payload.id]: holder,
-              ...state.card,
-            });
-            break;
-          } else {
-            console.log("dont go here");
-            answer = {
-              cart: {
-                [action.payload.id]: holder,
-              },
-            };
+
+            if (Object.keys(state.cart).length > 1) {
+              updatedCart.cart = { ...state.cart, ...updatedCart.cart };
+            }
           }
         }
+        if (Object.keys(updatedCart).length === 0) {
+          updatedCart = {
+            cart: {
+              [action.payload.id]: productBeingChanged,
+            },
+          };
+
+          updatedCart.cart = { ...updatedCart.cart, ...state.cart };
+        }
       } else {
-        answer = {
+        updatedCart = {
           cart: {
-            [action.payload.id]: holder,
+            [action.payload.id]: productBeingChanged,
           },
         };
       }
-
-      console.log(answer);
-      return answer;
+      return updatedCart;
     case "REMOVE_CART":
-      let gotOne = false;
-      let newCart = [];
-      for (let i = 0; i < state.cart.length; i++) {
-        if (state.cart[i].id == action.payload && !gotOne) {
-          gotOne = true;
-          newCart = [...state.cart.slice(0, i), ...state.cart.slice(i + 1)];
-          break;
+      if (state.cart[action.payload]) {
+        if (state.cart[action.payload].length === 1) {
+          delete state.cart[action.payload];
+        } else {
+          state.cart[action.payload] = state.cart[action.payload].slice(1);
         }
       }
-      newCart = !gotOne ? [...state.cart] : newCart;
-
-      return {
-        ...state,
-        cart: newCart,
-      };
+      return { ...state, cart: state.cart };
     default:
       return state;
   }
